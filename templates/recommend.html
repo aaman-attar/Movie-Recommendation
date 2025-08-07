@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Recommendations</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+            color: #f0f0f0;
+            padding: 40px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: auto;
+            padding: 40px;
+            background-color: rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.8em;
+            color: #fdd365;
+            letter-spacing: 1px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+
+        th, td {
+            padding: 16px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        th {
+            background-color: #fdd365;
+            color: #111;
+            font-weight: 700;
+        }
+
+        tr:nth-child(even) {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        tr:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+            transition: background-color 0.3s ease;
+        }
+
+        a {
+            display: inline-block;
+            text-decoration: none;
+            color: #fdd365;
+            border: 2px solid #fdd365;
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-weight: 500;
+            transition: 0.3s ease;
+        }
+
+        a:hover {
+            background-color: #fdd365;
+            color: #111;
+        }
+
+        #chart-container {
+            width: 100%;
+            height: 400px;
+            margin-top: 20px;
+            background-color: rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        p {
+            text-align: center;
+            font-size: 1.2em;
+            color: #ddd;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎥 Recommended Movies</h1>
+
+        {% if recommendations %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Rating</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for movie in recommendations %}
+                        <tr>
+                            <td>{{ movie.title }}</td>
+                            <td>{{ movie.rating }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <div id="chart-container">
+                <canvas id="ratingsChart"></canvas>
+            </div>
+
+            <script>
+                const ctx = document.getElementById('ratingsChart').getContext('2d');
+                const chart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: {{ recommendations | map(attribute='title') | list | tojson }},
+                        datasets: [{
+                            label: 'Movie Ratings',
+                            data: {{ recommendations | map(attribute='rating') | list | tojson }},
+                            backgroundColor: 'rgba(253, 211, 101, 0.7)',
+                            borderColor: 'rgba(253, 211, 101, 1)',
+                            borderWidth: 2,
+                            borderRadius: 6
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: { color: "#fff" },
+                                grid: { color: "rgba(255,255,255,0.1)" }
+                            },
+                            x: {
+                                ticks: { color: "#fff", maxRotation: 60, minRotation: 45 },
+                                grid: { color: "rgba(255,255,255,0.1)" }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                labels: { color: "#fff" }
+                            }
+                        }
+                    }
+                });
+            </script>
+        {% else %}
+            <p>No recommendations found for this genre.</p>
+        {% endif %}
+
+        <div style="text-align: center; margin-top: 30px;">
+            <a href="/">← Back to Home</a>
+        </div>
+    </div>
+</body>
+</html>
